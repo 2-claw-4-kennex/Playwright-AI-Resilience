@@ -207,3 +207,11 @@ MIT
 ```
 
 ```
+
+## Author
+
+**Aryan Sanskar Ahuja** * GitHub: [@2-claw-4-kennex](https://github.com/2-claw-4-kennex)
+* LinkedIn: (https://www.linkedin.com/in/aryan-sanskar-ahuja-49804a308/)
+
+If this tool saved your CI pipeline, consider giving the repo a ⭐ on GitHub!
+
