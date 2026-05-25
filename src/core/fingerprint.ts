@@ -2,7 +2,7 @@
  * fingerprint.ts
  *
  * Pure-function feature extraction for the local jsdom harness context.
- * Stable V1: Explicitly falls back to placeholder or value attributes for input fields.
+ * V1.1: Synced with browser fingerprinting (added spatialBucket mock).
  */
 
 export interface Fingerprint {
@@ -19,6 +19,7 @@ export interface Fingerprint {
   siblingIndex: number;
   siblingCount: number;
   depth: number;
+  spatialBucket: string;
 }
 
 export function extractFingerprint(el: Element): Fingerprint {
@@ -46,6 +47,7 @@ export function extractFingerprint(el: Element): Fingerprint {
     siblingIndex: getSiblingIndex(el),
     siblingCount: getSiblingCount(el),
     depth: getDepth(el),
+    spatialBucket: 'unknown', // JSDOM doesn't have layout/getBoundingClientRect
   };
 }
 

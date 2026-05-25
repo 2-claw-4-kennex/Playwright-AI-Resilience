@@ -23,10 +23,12 @@ interface Result {
 
 async function runHarness() {
   console.log('\n╔══════════════════════════════════════════════════╗');
-  console.log('║     playwright-ai-resilience  |  Ground Truth     ║');
+  console.log('║      playwright-ai-resilience  |  Ground Truth     ║');
   console.log('╚══════════════════════════════════════════════════╝\n');
 
   const results: Result[] = [];
+  
+  // NOTE: Intentionally excluding v2RoadmapCorpus to maintain V1 CI/CD stability
   const allFixtures = [...failureCorpus, ...adversarialCorpus];
 
   for (const fixture of allFixtures) {

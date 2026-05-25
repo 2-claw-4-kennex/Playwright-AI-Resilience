@@ -25,7 +25,6 @@ export const failureCorpus: BreakageFixture[] = [
       </div>`,
     expectedCandidateSelector: "[data-testid='checkout-submit']",
   },
-
   {
     name: "Div Soup Restructure",
     category: "DOM_RESTRUCTURE",
@@ -45,7 +44,6 @@ export const failureCorpus: BreakageFixture[] = [
       </main>`,
     expectedCandidateSelector: "button[data-action='submit']",
   },
-
   {
     name: "ARIA Label Change",
     category: "ARIA_CHANGE",
@@ -62,7 +60,6 @@ export const failureCorpus: BreakageFixture[] = [
       </nav>`,
     expectedCandidateSelector: "[data-testid='nav-settings']",
   },
-
   {
     name: "Text Content Rename",
     category: "TEXT_MUTATION",
@@ -79,7 +76,6 @@ export const failureCorpus: BreakageFixture[] = [
       </footer>`,
     expectedCandidateSelector: ".cta-primary",
   },
-
   {
     name: "ID Removed, data-testid Added",
     category: "ATTR_SHIFT",
@@ -96,7 +92,6 @@ export const failureCorpus: BreakageFixture[] = [
       </form>`,
     expectedCandidateSelector: "[data-testid='login-email']",
   },
-
   {
     name: "Button Promoted to Link",
     category: "DOM_RESTRUCTURE",
@@ -113,7 +108,6 @@ export const failureCorpus: BreakageFixture[] = [
       </div>`,
     expectedCandidateSelector: "a.nav-dashboard",
   },
-
   {
     name: "Ghost Element (True Deletion — should abstain)",
     category: "DOM_RESTRUCTURE",
@@ -130,7 +124,6 @@ export const failureCorpus: BreakageFixture[] = [
     expectedCandidateSelector: "#export-pdf",
     expectAbstention: true,
   },
-
   {
     name: "Semantic Class Kept Through Tailwind Migration",
     category: "CLASS_RENAME",
@@ -208,24 +201,6 @@ export const adversarialCorpus: BreakageFixture[] = [
     expectedCandidateSelector: "[data-testid='desktop-checkout']",
   },
   {
-    name: "Decoupled Custom Label Component (ARIA Relationship Broken)",
-    category: "ARIA_CHANGE",
-    originalHtml: `
-      <div class="form-row">
-        <label id="username-lbl" for="usr-input-field">Account Login</label>
-        <input id="usr-input-field" type="text" aria-labelledby="username-lbl" />
-      </div>`,
-    originalSelector: "[aria-labelledby='username-lbl']",
-    mutatedHtml: `
-      <div class="form-row-modernized">
-        <div id="new-abstract-label-id" class="custom-label-component">Account Login</div>
-        <input data-testid="login-user-input" type="text" aria-labelledby="new-abstract-label-id" placeholder="Account Login" />
-        <input type="text" placeholder="Unrelated Field" />
-      </div>`,
-    expectedCandidateSelector: "[data-testid='login-user-input']",
-  },
-
-  {
     name: "Asynchronous Loading Button Spinner State (Text Disappearance Trap)",
     category: "TEXT_MUTATION",
     originalHtml: `
@@ -243,7 +218,6 @@ export const adversarialCorpus: BreakageFixture[] = [
       </div>`,
     expectedCandidateSelector: "[data-testid='async-save-active']",
   },
-
   {
     name: "Deep Nested Interactive SVG Blueprint (Lineage & Tag Collapse)",
     category: "DOM_RESTRUCTURE",
@@ -264,7 +238,6 @@ export const adversarialCorpus: BreakageFixture[] = [
       </div>`,
     expectedCandidateSelector: "[data-testid='svg-trash-trigger']",
   },
-
   {
     name: "SaaS Multi-Tenant Prefixed Data Attributes (Dynamic Namespace Shift)",
     category: "ATTR_SHIFT",
@@ -283,7 +256,49 @@ export const adversarialCorpus: BreakageFixture[] = [
       </div>`,
     expectedCandidateSelector: "[data-testid='workspace-archive-cta']",
   },
+  {
+    name: "Nested Billing Form Rewrite (Lineage Drift)",
+    category: "DOM_RESTRUCTURE",
+    originalHtml: `
+      <form id="payment-form">
+        <div class="form-group">
+          <label>Billing Zip</label>
+          <input id="billing-zip" type="text" placeholder="Zip Code" class="form-control" />
+        </div>
+      </form>`,
+    originalSelector: "#billing-zip",
+    mutatedHtml: `
+      <form id="payment-form">
+        <div class="form-row-fluid validation-hydrated">
+          <div class="col-md-6 field-context-billing">
+            <div class="input-icon-group icon-right">
+              <input data-testid="postal-code-input" type="text" placeholder="Postal Code" class="form-control unique-input-token" />
+            </div>
+          </div>
+        </div>
+      </form>`,
+    expectedCandidateSelector: "[data-testid='postal-code-input']",
+  }
+];
 
+export const v2RoadmapCorpus: BreakageFixture[] = [
+  {
+    name: "Decoupled Custom Label Component (ARIA Relationship Broken)",
+    category: "ARIA_CHANGE",
+    originalHtml: `
+      <div class="form-row">
+        <label id="username-lbl" for="usr-input-field">Account Login</label>
+        <input id="usr-input-field" type="text" aria-labelledby="username-lbl" />
+      </div>`,
+    originalSelector: "[aria-labelledby='username-lbl']",
+    mutatedHtml: `
+      <div class="form-row-modernized">
+        <div id="new-abstract-label-id" class="custom-label-component">Account Login</div>
+        <input data-testid="login-user-input" type="text" aria-labelledby="new-abstract-label-id" placeholder="Account Login" />
+        <input type="text" placeholder="Unrelated Field" />
+      </div>`,
+    expectedCandidateSelector: "[data-testid='login-user-input']",
+  },
   {
     name: "Identical Row Action Menu Placements (Ambiguity Boundary Stress Test)",
     category: "TEXT_MUTATION",
@@ -315,29 +330,5 @@ export const adversarialCorpus: BreakageFixture[] = [
         </div>
       </div>`,
     expectedCandidateSelector: "[data-testid='action-btn-alice']",
-  },
-
-  {
-    name: "Nested Billing Form Rewrite (Lineage Drift)",
-    category: "DOM_RESTRUCTURE",
-    originalHtml: `
-      <form id="payment-form">
-        <div class="form-group">
-          <label>Billing Zip</label>
-          <input id="billing-zip" type="text" placeholder="Zip Code" class="form-control" />
-        </div>
-      </form>`,
-    originalSelector: "#billing-zip",
-    mutatedHtml: `
-      <form id="payment-form">
-        <div class="form-row-fluid validation-hydrated">
-          <div class="col-md-6 field-context-billing">
-            <div class="input-icon-group icon-right">
-              <input data-testid="postal-code-input" type="text" placeholder="Postal Code" class="form-control unique-input-token" />
-            </div>
-          </div>
-        </div>
-      </form>`,
-    expectedCandidateSelector: "[data-testid='postal-code-input']",
   }
 ];

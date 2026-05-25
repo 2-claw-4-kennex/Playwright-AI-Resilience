@@ -1,5 +1,5 @@
 /**
- * safeAssert.ts (Stable V1)
+ * safeAssert.ts (Stable V1.1)
  *
  * Entrypoint wrapper API for browser-side verification and self-healing.
  */
@@ -203,10 +203,10 @@ const SCORE_WITH_BASELINE_FN = `
     const tagScore    = base.tag === fp.tagName ? 1 : 0;
     const lcs         = lcsLen(base.lineageVector, fp.lineage);
     const structScore = Math.max(base.lineageVector.length, fp.lineage.length) === 0 ? 0 : lcs / Math.max(base.lineageVector.length, fp.lineage.length);
-    const spatialScore = base.spatialBucket && fp.spatialBucket ? (base.spatialBucket === fp.spatialBucket ? 1 : 0.3) : 0;
+    const spatialScore = base.spatialBucket && fp.spatialBucket && base.spatialBucket !== 'unknown' && fp.spatialBucket !== 'unknown' ? (base.spatialBucket === fp.spatialBucket ? 1 : 0.3) : 0;
 
     const spatialPenalty = (() => {
-      if (!base.spatialBucket || !fp.spatialBucket) return 0;
+      if (!base.spatialBucket || !fp.spatialBucket || base.spatialBucket === 'unknown' || fp.spatialBucket === 'unknown') return 0;
       const baseRow = base.spatialBucket.split('-')[0];
       const fpRow   = fp.spatialBucket.split('-')[0];
       if ((baseRow === 'bottom' && fpRow === 'top') || (baseRow === 'top' && fpRow === 'bottom')) return 0.25;
@@ -237,8 +237,10 @@ const SCORE_WITH_BASELINE_FN = `
     return el.tagName.toLowerCase();
   }
 
+  // BUG FIX: Now checks ancestors via closest()
   function collect(root, results=[]) {
-    const els = Array.from(root.querySelectorAll('button,a,input,select,textarea,[role="button"],[role="link"],[tabindex]')).filter(el => !el.hasAttribute('aria-hidden') && !el.hidden);
+    const els = Array.from(root.querySelectorAll('button,a,input,select,textarea,[role="button"],[role="link"],[tabindex]'))
+      .filter(el => !el.closest('[aria-hidden="true"]') && !el.hidden);
     results.push(...els);
     for (const el of root.querySelectorAll('*')) { if (el.shadowRoot) collect(el.shadowRoot, results); }
     return results;

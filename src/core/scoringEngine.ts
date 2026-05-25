@@ -2,7 +2,7 @@
  * scoringEngine.ts
  *
  * Local deterministic ranking engine used to back test-driven harness evaluation.
- * Stable V1: Balances semantic class anchors with token verification.
+ * V1.1: Synced weights with browser, added aria-hidden ancestor traversal.
  */
 
 import { Fingerprint, extractFingerprint } from './fingerprint';
@@ -23,10 +23,14 @@ export interface ScoreBreakdown {
   classScore: number;
   tagScore: number;
   structureScore: number;
+  spatialScore: number;
+  spatialPenalty: number;
   ambiguityPenalty: number;
   tagMismatchPenalty: number;
+  identityBonus: number;
 }
 
+// EXACT SYNC WITH safeAssert.ts
 const W = {
   text:      0.30,      
   role:      0.10,
@@ -36,6 +40,7 @@ const W = {
   classes:   0.10,
   tag:       0.03,
   structure: 0.02,
+  spatial:   0.03
 };
 
 const INTERACTIVE_TAGS = new Set(['button', 'a', 'input', 'select', 'textarea']);
@@ -76,6 +81,19 @@ function scoreOne(base: Fingerprint, el: Element): ScoredCandidate {
   const semanticBaseClasses = semanticClasses(base.classes);
   const semanticFpClasses = semanticClasses(fp.classes);
 
+  const spatialScore = base.spatialBucket && fp.spatialBucket && base.spatialBucket !== 'unknown' && fp.spatialBucket !== 'unknown' 
+    ? (base.spatialBucket === fp.spatialBucket ? 1 : 0.3) 
+    : 0;
+
+  const spatialPenalty = (() => {
+    if (!base.spatialBucket || !fp.spatialBucket || base.spatialBucket === 'unknown' || fp.spatialBucket === 'unknown') return 0;
+    const baseRow = base.spatialBucket.split('-')[0];
+    const fpRow   = fp.spatialBucket.split('-')[0];
+    if ((baseRow === 'bottom' && fpRow === 'top') || (baseRow === 'top' && fpRow === 'bottom')) return 0.25;
+    if (baseRow !== fpRow) return 0.10;
+    return 0;
+  })();
+
   const b: ScoreBreakdown = {
     textScore:        textSimilarity(base.textTokens, fp.textTokens),
     roleScore:        base.role === fp.role ? 1 : 0,
@@ -89,12 +107,15 @@ function scoreOne(base: Fingerprint, el: Element): ScoredCandidate {
     classScore:       jaccardSimilarity(semanticBaseClasses, semanticFpClasses),
     tagScore:         base.tagName === fp.tagName ? 1 : 0,
     structureScore:   lineageSimilarity(base.lineage, fp.lineage),
+    spatialScore:     spatialScore,
+    spatialPenalty:   spatialPenalty,
     ambiguityPenalty: 0,
     tagMismatchPenalty: !INTERACTIVE_TAGS.has(fp.tagName) ? 0.25 : 0,
+    identityBonus:    0,
   };
 
   const sharesSemanticClass = [...semanticBaseClasses].some(c => semanticFpClasses.has(c));
-  const identityBonus = (b.textScore > 0 || b.ariaScore > 0 || sharesSemanticClass) ? 0.08 : 0;
+  b.identityBonus = (b.textScore > 0 || b.ariaScore > 0 || sharesSemanticClass) ? 0.08 : 0;
 
   const raw =
     b.textScore      * W.text +
@@ -105,9 +126,10 @@ function scoreOne(base: Fingerprint, el: Element): ScoredCandidate {
     b.classScore     * W.classes +
     b.tagScore       * W.tag +
     b.structureScore * W.structure +
-    identityBonus;
+    b.spatialScore   * W.spatial +
+    b.identityBonus;
 
-  const score = Math.max(0, raw - b.tagMismatchPenalty);
+  const score = Math.max(0, raw - b.tagMismatchPenalty - b.spatialPenalty);
 
   return { element: el, fingerprint: fp, score, breakdown: b };
 }
@@ -168,7 +190,7 @@ function lcsLength(a: string[], b: string[]): number {
   return dp[a.length].length === 0 ? 0 : dp[a.length][b.length];
 }
 
+// BUG FIX: Now checks ancestors for aria-hidden="true" via closest()
 function isHidden(el: Element): boolean {
-  return el.getAttribute('aria-hidden') === 'true' ||
-         (el as HTMLElement).hidden === true;
+  return !!el.closest('[aria-hidden="true"]') || (el as HTMLElement).hidden === true;
 }
