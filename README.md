@@ -1,6 +1,10 @@
 ```markdown
 # playwright-ai-resilience
 
+[![npm version](https://img.shields.io/npm/v/playwright-ai-resilience.svg?style=flat-square)](https://npmjs.com/package/playwright-ai-resilience)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Tests](https://img.shields.io/badge/tests-15%2F15%20passing-brightgreen.svg?style=flat-square)]()
+
 Your Playwright tests passed yesterday.  
 Today a frontend engineer renamed `#checkout-btn` to `data-testid="checkout-v2"`.  
 Your CI pipeline is red. Your deploy is blocked.
