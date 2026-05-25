@@ -1,6 +1,8 @@
 {
   "name": "playwright-ai-resilience",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "author": "Aryan Sanskar Ahuja",
+  "license": "MIT",
   "description": "Deterministic self-healing wrapper for Playwright selectors. Catches TimeoutErrors, recovers via heuristic DOM scoring, verifies intent.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -46,6 +48,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/playwright-ai-resilience"
+    "url": "https://github.com/2-claw-4-kennex/playwright-ai-resilience"
   }
 }
