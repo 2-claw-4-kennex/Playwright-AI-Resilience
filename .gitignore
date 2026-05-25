@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Production Build
+dist/
+
+# Local Testing Cache
+.resilience/
+
+# Environment Variables
+.env
